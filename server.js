@@ -6,49 +6,59 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Connect to MongoDB
-const client = new MongoClient(process.env.MONGO_URI);
+// Replace with your actual MongoDB connection URI
+const uri = 'mongodb+srv://youruser:yourpass@cluster0.mongodb.net/logdata?retryWrites=true&w=majority';
+
+const client = new MongoClient(uri);
 let collection;
 
 async function connectToDB() {
   try {
     await client.connect();
-    const db = client.db("logdata"); // Database name
-    collection = db.collection("registrations"); // Collection name
-    console.log("✅ Connected to MongoDB");
+    const db = client.db('logdata'); // Your database name
+    collection = db.collection('registrations'); // Your collection name
+    console.log('✅ Connected to MongoDB');
   } catch (err) {
-    console.error("❌ MongoDB connection failed:", err);
+    console.error('❌ MongoDB connection failed:', err);
   }
 }
 connectToDB();
 
-// Handle POST /register
+// POST /register → saves name, ip, and timestamp
 app.post('/register', async (req, res) => {
   const { name, ip, timestamp } = req.body;
+
   if (!name || !ip || !timestamp) {
-    return res.status(400).send("Missing data");
+    return res.status(400).send('❌ Missing required fields');
   }
 
   try {
     await collection.insertOne({ name, ip, timestamp });
-    res.send("✅ Registered");
+    res.send('✅ Registration saved to database');
   } catch (err) {
-    console.error("❌ Insert failed:", err);
-    res.status(500).send("Failed to register");
+    console.error('❌ Error inserting into MongoDB:', err);
+    res.status(500).send('Server error');
   }
 });
 
-// Handle GET /logs
+// GET /logs → fetch all logs
 app.get('/logs', async (req, res) => {
   try {
     const logs = await collection.find().sort({ timestamp: -1 }).toArray();
     res.json(logs);
   } catch (err) {
-    res.status(500).send("Error fetching logs");
+    console.error('❌ Error fetching logs:', err);
+    res.status(500).send('Error fetching logs');
   }
 });
 
+// Root route
+app.get('/', (req, res) => {
+  res.send('🚀 MongoDB logger server is running!');
+});
+
+// Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`🚀 Server is live on port ${PORT}`);
 });
