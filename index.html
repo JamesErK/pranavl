@@ -1,90 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Register Name</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-
-  <style>
-    .fade-in {
-      animation: fadeIn 1s ease-in-out forwards;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-  </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Register Name</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
+<body class="bg-gradient-to-r from-green-400 to-blue-500 min-h-screen flex items-center justify-center text-white">
 
-<body class="min-h-screen bg-gradient-to-r from-red-500 via-yellow-400 to-blue-500 flex items-center justify-center">
-  <div class="bg-white/30 backdrop-blur-md p-10 rounded-xl shadow-xl text-center text-white">
-    <h1 class="text-4xl font-bold mb-4 drop-shadow-xl">Welcome Pranav LGBTQ Membership Platform</h1>
+  <!-- Welcome Audio -->
+  <audio id="welcomeAudio" src="welcome.mp3" autoplay></audio>
 
-    <!-- Show IP Address -->
-    <div id="ipAddress" class="text-lg mb-4 font-semibold text-white">Fetching your IP...</div>
+  <div class="bg-white bg-opacity-10 backdrop-blur-md p-10 rounded-2xl shadow-2xl text-center max-w-md w-full">
+    <h1 class="text-4xl font-bold mb-6">🎉 Register Your Name</h1>
+    
+    <input type="text" id="nameInput" placeholder="Enter your name..." class="text-black px-4 py-2 rounded-lg w-64 text-lg"/>
+    <br><br>
 
-    <input type="text" id="nameInput" placeholder="Type your name..."
-           class="text-black placeholder-gray-500 px-4 py-2 rounded-lg w-64 text-lg mb-4"/>
+    <button onclick="registerName()" class="bg-white text-green-700 px-6 py-2 rounded-full text-xl font-semibold hover:bg-green-200 transition">
+      Register
+    </button>
 
-    <br>
+    <div id="banner" class="mt-8 text-2xl font-bold hidden"></div>
+    <div id="ipDisplay" class="mt-4 text-white text-sm"></div>
 
-    <button onclick="registerName()"
-            class="bg-white text-green-700 px-6 py-2 rounded-full text-xl font-semibold hover:bg-green-200 transition">
-      Register
-    </button>
+    <!-- Image to show after registration -->
+    <img id="Image" src="pranv.jpg" alt="Welcome!" class="mt-6 w-48 h-auto mx-auto hidden rounded-xl shadow-lg"/>
+  </div>
 
-    <div id="banner" class="mt-8 text-white text-2xl font-bold hidden"></div>
-  </div>
+  <script>
+    function registerName() {
+      const name = document.getElementById('nameInput').value.trim();
+      if (name) {
+        const banner = document.getElementById('banner');
+        banner.textContent = `✅ You are registered as "${name}"!`;
+        banner.classList.remove("hidden");
 
-  <script>
-    let userIP = "";
+        // Show the image
+        document.getElementById('image').classList.remove("hidden");
+      } else {
+        alert("Please enter your name.");
+      }
+    }
 
-    // Fetch and show IP on page load
-    async function getUserIP() {
-      try {
-        const res = await fetch('https://api.ipify.org?format=json');
-        const data = await res.json();
-        userIP = data.ip;
-        document.getElementById('ipAddress').textContent = `Your IP Address: ${userIP}`;
-      } catch (error) {
-        document.getElementById('ipAddress').textContent = 'Unable to fetch IP address';
-        console.error("IP fetch error:", error);
-      }
-    }
-
-    getUserIP(); // call on load
-
-    async function registerName() {
-      const name = document.getElementById('nameInput').value.trim();
-      const banner = document.getElementById('banner');
-
-      if (!name) {
-        alert("Please enter your name.");
-        return;
-      }
-
-      try {
-        await fetch('https://pranavll.onrender.com', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: name,
-            ip: userIP,
-            timestamp: new Date().toISOString()
-          })
-        });
-
-        banner.textContent = `✅ Hey "${name}" Your name has been registered successfully in our Membership !`;
-        banner.classList.remove("hidden");
-        banner.classList.add("fade-in");
-
-      } catch (err) {
-        console.error(err);
-        alert("Something went wrong. Try again later.");
-      }
-    }
-  </script>
+    // Fetch IP address from public API
+    fetch('https://api.ipify.org?format=json')
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('ipDisplay').textContent = `🌐 Your IP: ${data.ip}`;
+      })
+      .catch(() => {
+        document.getElementById('ipDisplay').textContent = 'IP address not available';
+      });
+  </script>
 </body>
 </html>
